@@ -23,6 +23,7 @@ class KeyboardJoyNode(Node):
         self.axes = [0.0] * 8
         self.axes[2] = 1.0  # 2nd index (index 1) always 1
         self.axes[5] = 1.0  # 5th index (index 4) always 1
+        self.buttons = [0.0] * 8
         
         # Movement increment
         self.increment = 0.05
@@ -37,9 +38,10 @@ class KeyboardJoyNode(Node):
         
         self.get_logger().info('Keyboard Joy Node started')
         self.get_logger().info('Controls:')
-        self.get_logger().info('  w/s: Axis 0 (forward/backward)')
-        self.get_logger().info('  a/d: Axis 1 (left/right)')
-        self.get_logger().info('  i/k: Axis 3 (up/down)')
+        self.get_logger().info('  w/s: Axis 0 (left wrist forward/backward)')
+        self.get_logger().info('  a/d: Axis 1 (left wrist left/right)')
+        self.get_logger().info('  i/k: Axis 3 (right wrist forward/backward)')
+        self.get_logger().info('  j/l: Axis 4 (right wrist left/right)')
         self.get_logger().info('  q: Quit')
         
     def keyboard_listener(self):
@@ -67,9 +69,9 @@ class KeyboardJoyNode(Node):
             
         # Axis 2: a/d keys (note: this is index 2, not 1, since index 1 is fixed at 1.0)
         elif key == 'a':
-            self.axes[1] = min(1.0, self.axes[2] + self.increment)
+            self.axes[1] = min(1.0, self.axes[1] + self.increment)
         elif key == 'd':
-            self.axes[1] = max(-1.0, self.axes[2] - self.increment)
+            self.axes[1] = max(-1.0, self.axes[1] - self.increment)
             
         # Axis 3: i/k keys
         elif key == 'i':
@@ -79,9 +81,9 @@ class KeyboardJoyNode(Node):
         
         # Axis 4: j/l keys
         elif key == 'j':
-            self.axes[4] = min(1.0, self.axes[3] + self.increment)
+            self.axes[4] = min(1.0, self.axes[4] + self.increment)
         elif key == 'l':
-            self.axes[4] = max(-1.0, self.axes[3] - self.increment)
+            self.axes[4] = max(-1.0, self.axes[4] - self.increment)
     
     def publish_joy(self):
         """Publish Joy message"""
@@ -89,10 +91,9 @@ class KeyboardJoyNode(Node):
         joy_msg.header.stamp = self.get_clock().now().to_msg()
         joy_msg.header.frame_id = 'keyboard_joy'
         
-        # Set axes (ensure indices 1 and 4 remain at 1.0)
         joy_msg.axes = self.axes.copy()
-        joy_msg.axes[1] = 1.0  # Always keep 2nd index at 1
-        joy_msg.axes[4] = 1.0  # Always keep 5th index at 1
+        joy_msg.axes[2] = 1.0  # Always keep 2nd index at 1
+        joy_msg.axes[5] = 1.0  # Always keep 5th index at 1
         
         # Empty buttons array
         joy_msg.buttons = []

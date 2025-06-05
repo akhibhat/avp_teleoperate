@@ -36,7 +36,7 @@ class JoystickWrapper(Node):
         self.left_lever_base_pose[1, 3] = 0.2
         self.left_lever_base_pose[2, 3] = 0.0
 
-        left_roll = 10.0 * np.pi / 180.0
+        left_roll = 20.0 * np.pi / 180.0
         left_pitch = 10.0 * np.pi / 180.0
 
         left_roll_mat = np.array(
@@ -57,10 +57,10 @@ class JoystickWrapper(Node):
 
         self.right_lever_base_pose = np.eye(4)
         self.right_lever_base_pose[0, 3] = 0.2
-        self.right_lever_base_pose[1, 3] = 0.2
-        self.right_lever_base_pose[2, 3] = -0.1
+        self.right_lever_base_pose[1, 3] = -0.2
+        self.right_lever_base_pose[2, 3] = 0.0
 
-        right_roll = -10.0 * np.pi / 180.0
+        right_roll = -20.0 * np.pi / 180.0
         right_pitch = 10.0 * np.pi / 180.0
 
         right_roll_mat = np.array(
@@ -95,19 +95,20 @@ class JoystickWrapper(Node):
     def updateWristPoses(self):
         if self.joy_data is None:
             return
+        print("Updating wrist poses...")
 
-        left_x = self.joy_data.axes[0] if len(self.joy_data.axes) > 8 else 0.0
-        left_y = self.joy_data.axes[1] if len(self.joy_data.axes) > 8 else 0.0
+        left_x = self.joy_data.axes[0] if len(self.joy_data.axes) >= 8 else 0.0
+        left_y = self.joy_data.axes[1] if len(self.joy_data.axes) >= 8 else 0.0
 
-        right_x = self.joy_data.axes[3] if len(self.joy_data.axes) > 8 else 0.0
-        right_y = self.joy_data.axes[4] if len(self.joy_data.axes) > 8 else 0.0
+        right_x = self.joy_data.axes[3] if len(self.joy_data.axes) >= 8 else 0.0
+        right_y = self.joy_data.axes[4] if len(self.joy_data.axes) >= 8 else 0.0
 
         # Mapping joystick values to lever angles
-        left_pitch = left_y * 16.5 * np.pi / 180.0
-        left_roll = left_x * 16.5 * np.pi / 180.0
+        left_pitch = left_y * 20.0 * np.pi / 180.0
+        left_roll = left_x * 20.0 * np.pi / 180.0
 
-        right_pitch = right_y * 16.5 * np.pi / 180.0
-        right_roll = right_x * 16.5 * np.pi / 180.0
+        right_pitch = right_y * 20.0 * np.pi / 180.0
+        right_roll = right_x * 20.0 * np.pi / 180.0
 
         left_lever_tip = self.calculateLeverTipPose(
             self.left_lever_base_pose,
@@ -199,7 +200,8 @@ def main(args=None):
                 rclpy.spin_once(joystick_wrapper, timeout_sec=0.001)
 
                 left_wrist, right_wrist = joystick_wrapper.getData()
-
+                print(left_wrist)
+                print(right_wrist)
                 current_lr_arm_q = arm_ctrl.get_current_dual_arm_q()
                 current_lr_arm_dq = arm_ctrl.get_current_dual_arm_dq()
 
