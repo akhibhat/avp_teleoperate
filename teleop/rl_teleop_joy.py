@@ -238,6 +238,14 @@ def main(args=None):
                     dq=current_lr_arm_dq,
                     target_pos=np.concatenate([left_xyz, right_xyz]),
                 )
+
+                # Ensure loop runs at least at 25Hz
+                elapsed_time = time.time() - start_time
+                min_period = 1.0 / 25.0
+                if elapsed_time < min_period:
+                    time.sleep(min_period - elapsed_time)
+
+                    
                 sol_tauff = np.zeros_like(sol_q)
 
                 time_ik_end = time.time()
