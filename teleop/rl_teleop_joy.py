@@ -7,6 +7,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Joy
 from rl_policy_inference import RLPolicyInference
+
 from multiprocessing import shared_memory, Array, Lock
 import threading
 
@@ -55,7 +56,7 @@ class JoystickWrapper(Node):
         self.left_lever_base_pose[1, 3] = 0.2
         self.left_lever_base_pose[2, 3] = 0.0
 
-        left_roll = 10.0 * np.pi / 180.0
+        left_roll = 20.0 * np.pi / 180.0
         left_pitch = 10.0 * np.pi / 180.0
 
         left_roll_mat = np.array(
@@ -76,10 +77,10 @@ class JoystickWrapper(Node):
 
         self.right_lever_base_pose = np.eye(4)
         self.right_lever_base_pose[0, 3] = 0.2
-        self.right_lever_base_pose[1, 3] = 0.2
-        self.right_lever_base_pose[2, 3] = -0.1
+        self.right_lever_base_pose[1, 3] = -0.2
+        self.right_lever_base_pose[2, 3] = 0.0
 
-        right_roll = -10.0 * np.pi / 180.0
+        right_roll = -20.0 * np.pi / 180.0
         right_pitch = 10.0 * np.pi / 180.0
 
         right_roll_mat = np.array(
@@ -114,26 +115,33 @@ class JoystickWrapper(Node):
     def updateWristPoses(self):
         if self.joy_data is None:
             return
+        print("Updating wrist poses...")
 
-        left_x = self.joy_data.axes[0] if len(self.joy_data.axes) > 8 else 0.0
-        left_y = self.joy_data.axes[1] if len(self.joy_data.axes) > 8 else 0.0
+        left_x = self.joy_data.axes[0] if len(self.joy_data.axes) >= 8 else 0.0
+        left_y = self.joy_data.axes[1] if len(self.joy_data.axes) >= 8 else 0.0
 
-        right_x = self.joy_data.axes[3] if len(self.joy_data.axes) > 8 else 0.0
-        right_y = self.joy_data.axes[4] if len(self.joy_data.axes) > 8 else 0.0
+        right_x = self.joy_data.axes[3] if len(self.joy_data.axes) >= 8 else 0.0
+        right_y = self.joy_data.axes[4] if len(self.joy_data.axes) >= 8 else 0.0
 
         # Mapping joystick values to lever angles
-        left_pitch = left_y * 16.5 * np.pi / 180.0
-        left_roll = left_x * 16.5 * np.pi / 180.0
+        left_pitch = left_y * 20.0 * np.pi / 180.0
+        left_roll = left_x * 20.0 * np.pi / 180.0
 
-        right_pitch = right_y * 16.5 * np.pi / 180.0
-        right_roll = right_x * 16.5 * np.pi / 180.0
+        right_pitch = right_y * 20.0 * np.pi / 180.0
+        right_roll = right_x * 20.0 * np.pi / 180.0
 
         left_lever_tip = self.calculateLeverTipPose(
-            self.left_lever_base_pose, left_roll, left_pitch, self.lever_length
+            self.left_lever_base_pose,
+            left_roll,
+            left_pitch,
+            self.lever_length
         )
 
         right_lever_tip = self.calculateLeverTipPose(
-            self.right_lever_base_pose, right_roll, right_pitch, self.lever_length
+            self.right_lever_base_pose,
+            right_roll,
+            right_pitch,
+            self.lever_length
         )
 
         self.left_wrist = left_lever_tip
@@ -144,17 +152,15 @@ class JoystickWrapper(Node):
             [
                 [1, 0, 0],
                 [0, np.cos(roll), -np.sin(roll)],
-                [0, np.sin(roll), np.cos(roll)],
-            ]
-        )
+                [0, np.sin(roll), np.cos(roll)]
+            ])
 
         pitch_mat = np.array(
             [
                 [np.cos(pitch), 0, np.sin(pitch)],
                 [0, 1, 0],
-                [-np.sin(pitch), 0, np.cos(pitch)],
-            ]
-        )
+                [-np.sin(pitch), 0, np.cos(pitch)]
+            ])
 
         rotation = np.dot(roll_mat, pitch_mat)
 
@@ -188,7 +194,7 @@ def main(args=None):
         "--joy_topic", type=str, default="/joy", help="Joy topic for commands"
     )
     parser.add_argument(
-        "--frequency", type=float, default=30.0, help="control loop frequency"
+        "--frequency", type=float, default=30.0, help='control loop frequency'
     )
     args = parser.parse_args()
     print(f"args:{args}")
@@ -217,12 +223,18 @@ def main(args=None):
                 rclpy.spin_once(joystick_wrapper, timeout_sec=0.001)
 
                 left_wrist, right_wrist = joystick_wrapper.getData()
+                print(left_wrist)
+                print(right_wrist)
+                left_xyz = left_wrist[:3, 3]
+                right_xyz = right_wrist[:3, 3]
 
+                print(left_xyz, right_xyz)
+                exit()
                 current_lr_arm_q = arm_ctrl.get_current_dual_arm_q()
                 current_lr_arm_dq = arm_ctrl.get_current_dual_arm_dq()
 
                 time_ik_start = time.time()
-
+                
                 sol_q = rl_inference.run(
                     q=current_lr_arm_q,
                     dq=current_lr_arm_dq,
