@@ -21,7 +21,7 @@ sys.path.append(parent_dir)
 from teleop.robot_control.robot_arm import G1_29_ArmController
 from teleop.robot_control.robot_arm_ik import G1_29_ArmIK
 
-POLICY_PATH = os.path.join(parent_dir, "rl_assets/policy_multi_target_pred.onnx")
+POLICY_PATH = os.path.join(parent_dir, "rl_assets/policy_vibrating.onnx")
 JOINT_YAML_PATH = os.path.join(parent_dir, "rl_assets/joint_order.yml")
 SPACES = [
     "left_shoulder_pitch_joint",
@@ -223,13 +223,11 @@ def main(args=None):
                 rclpy.spin_once(joystick_wrapper, timeout_sec=0.001)
 
                 left_wrist, right_wrist = joystick_wrapper.getData()
-                print(left_wrist)
-                print(right_wrist)
+
                 left_xyz = left_wrist[:3, 3]
                 right_xyz = right_wrist[:3, 3]
 
-                print(left_xyz, right_xyz)
-                exit()
+
                 current_lr_arm_q = arm_ctrl.get_current_dual_arm_q()
                 current_lr_arm_dq = arm_ctrl.get_current_dual_arm_dq()
 
@@ -238,7 +236,7 @@ def main(args=None):
                 sol_q = rl_inference.run(
                     q=current_lr_arm_q,
                     dq=current_lr_arm_dq,
-                    target_pos=np.concatenate([[0.2, 0.2, 0.15], [0.2, -0.2, 0.15]]),
+                    target_pos=np.concatenate([left_xyz, right_xyz]),
                 )
                 sol_tauff = np.zeros_like(sol_q)
 
