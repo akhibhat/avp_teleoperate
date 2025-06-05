@@ -222,30 +222,33 @@ def main(args=None):
 
                 rclpy.spin_once(joystick_wrapper, timeout_sec=0.001)
 
-                left_wrist, right_wrist = joystick_wrapper.getData()
-
-                left_xyz = left_wrist[:3, 3]
-                right_xyz = right_wrist[:3, 3]
-
-
-                current_lr_arm_q = arm_ctrl.get_current_dual_arm_q()
-                current_lr_arm_dq = arm_ctrl.get_current_dual_arm_dq()
 
                 time_ik_start = time.time()
                 
-                sol_q = rl_inference.run(
-                    q=current_lr_arm_q,
-                    dq=current_lr_arm_dq,
-                    target_pos=np.concatenate([left_xyz, right_xyz]),
-                )
-
                 # Ensure loop runs at least at 25Hz
                 elapsed_time = time.time() - start_time
                 min_period = 1.0 / 25.0
                 if elapsed_time < min_period:
                     time.sleep(min_period - elapsed_time)
 
-                    
+
+                left_wrist, right_wrist = joystick_wrapper.getData()
+
+                left_xyz = left_wrist[:3, 3]
+                right_xyz = right_wrist[:3, 3]
+                
+
+                current_lr_arm_q = arm_ctrl.get_current_dual_arm_q()
+                current_lr_arm_dq = arm_ctrl.get_current_dual_arm_dq()
+
+                sol_q = rl_inference.run(
+                    q=current_lr_arm_q,
+                    dq=current_lr_arm_dq,
+                    target_pos=np.concatenate([left_xyz, right_xyz]),
+                )
+
+
+
                 sol_tauff = np.zeros_like(sol_q)
 
                 time_ik_end = time.time()
