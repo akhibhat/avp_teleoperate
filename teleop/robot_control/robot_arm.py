@@ -203,12 +203,28 @@ class G1_29_ArmController:
         '''Move both the left and right arms of the robot to their home position by setting the target joint angles (q) and torques (tau) to zero.'''
         print("[G1_29_ArmController] ctrl_dual_arm_go_home start...")
         with self.ctrl_lock:
-            self.q_target = np.zeros(14)
+            # self.q_target = np.zeros(14)
+            self.q_target = np.array([
+                -0.0448,
+                0.58001,
+                0.3121,
+                0.53142,
+                -0.14529,
+                -0.22973,
+                -0.38375,
+                0.063,
+                -0.53249,
+                -0.2853,
+                0.47393,
+                0.07423,
+                -0.44783,
+                0.25057
+            ])
             # self.tauff_target = np.zeros(14)
         tolerance = 0.05  # Tolerance threshold for joint angles to determine "close to zero", can be adjusted based on your motor's precision requirements
         while True:
             current_q = self.get_current_dual_arm_q()
-            if np.all(np.abs(current_q) < tolerance):
+            if np.all(np.abs(current_q - self.q_target) < tolerance):
                 print("[G1_29_ArmController] both arms have reached the home position.")
                 break
             time.sleep(0.05)
@@ -730,6 +746,18 @@ class H1_2_ArmController:
             current_q = self.get_current_dual_arm_q()
             if np.all(np.abs(current_q) < tolerance):
                 print("[H1_2_ArmController] both arms have reached the home position.")
+                break
+            time.sleep(0.05)
+
+    def ctrl_dual_arm_move(self, q_target):
+        print("[G1_29_ArmController] ctrl_dual_arm_move start...")
+        with self.ctrl_lock:
+            self.q_target = q_target
+        tolerance = 0.05
+        while True:
+            current_q = self.get_current_dual_arm_q()
+            if np.all(np.abs(current_q - q_target) < tolerance):
+                print("[G1_29_ArmController] both arms have reached the target")
                 break
             time.sleep(0.05)
 

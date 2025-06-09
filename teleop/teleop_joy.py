@@ -33,8 +33,8 @@ class JoystickWrapper(Node):
 
         self.left_lever_base_pose = np.eye(4)
         self.left_lever_base_pose[0, 3] = 0.2
-        self.left_lever_base_pose[1, 3] = 0.2
-        self.left_lever_base_pose[2, 3] = 0.0
+        self.left_lever_base_pose[1, 3] = 0.4
+        self.left_lever_base_pose[2, 3] = -0.05
 
         left_roll = 20.0 * np.pi / 180.0
         left_pitch = 10.0 * np.pi / 180.0
@@ -56,9 +56,9 @@ class JoystickWrapper(Node):
         self.left_lever_base_pose[0:3, 0:3] = np.dot(left_roll_mat, left_pitch_mat)
 
         self.right_lever_base_pose = np.eye(4)
-        self.right_lever_base_pose[0, 3] = 0.2
-        self.right_lever_base_pose[1, 3] = -0.2
-        self.right_lever_base_pose[2, 3] = 0.0
+        self.right_lever_base_pose[0, 3] = 0.16
+        self.right_lever_base_pose[1, 3] = -0.4
+        self.right_lever_base_pose[2, 3] = -0.05
 
         right_roll = -20.0 * np.pi / 180.0
         right_pitch = 10.0 * np.pi / 180.0
@@ -97,18 +97,18 @@ class JoystickWrapper(Node):
             return
         print("Updating wrist poses...")
 
-        left_x = self.joy_data.axes[0] if len(self.joy_data.axes) >= 8 else 0.0
-        left_y = self.joy_data.axes[1] if len(self.joy_data.axes) >= 8 else 0.0
+        left_x = self.joy_data.axes[1] if len(self.joy_data.axes) >= 8 else 0.0
+        left_y = self.joy_data.axes[0] if len(self.joy_data.axes) >= 8 else 0.0
 
         right_x = self.joy_data.axes[3] if len(self.joy_data.axes) >= 8 else 0.0
         right_y = self.joy_data.axes[4] if len(self.joy_data.axes) >= 8 else 0.0
 
         # Mapping joystick values to lever angles
-        left_pitch = left_y * 20.0 * np.pi / 180.0
-        left_roll = left_x * 20.0 * np.pi / 180.0
+        left_pitch = left_y * -20.0 * np.pi / 180.0
+        left_roll = left_x * -20.0 * np.pi / 180.0
 
         right_pitch = right_y * 20.0 * np.pi / 180.0
-        right_roll = right_x * 20.0 * np.pi / 180.0
+        right_roll = right_x * -20.0 * np.pi / 180.0
 
         left_lever_tip = self.calculateLeverTipPose(
             self.left_lever_base_pose,
@@ -188,7 +188,22 @@ def main(args=None):
 
     try:
         user_input = input("Please enter the start signal (enter )")
-        if user_input.lower() == "r":
+        if user_input == "x":
+            print("Starting arm motion in -x direction")
+            left_wrist, right_wrist = joystick_wrapper.getData()
+            left_wrist[0, 3] -= 0.05
+            right_wrist[0, 3] -= 0.05
+        elif user_input == "y":
+            print("Starting arm motion in -y direction")
+        elif user_input == "z":
+            print("Starting arm motion in -z direction")
+        elif user_input == "X":
+            print("Starting arm motion in +x direction")
+        elif user_input == "Y":
+            print("Starting arm motion in +y direction")
+        elif user_input == "Z":
+            print("Starting arm motion in +z direction")
+        elif user_input.lower() == "r":
             print("Starting teleoperation...")
             arm_ctrl.speed_gradual_max()
 
@@ -212,6 +227,7 @@ def main(args=None):
                     current_lr_arm_q,
                     current_lr_arm_dq
                 )
+                print(sol_q)
                 time_ik_end = time.time()
                 time_ik = time_ik_end - time_ik_start
                 print("Time required for IK: %f", time_ik)
