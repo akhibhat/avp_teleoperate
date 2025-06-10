@@ -131,17 +131,11 @@ class JoystickWrapper(Node):
         right_roll = right_x * 20.0 * np.pi / 180.0
 
         left_lever_tip = self.calculateLeverTipPose(
-            self.left_lever_base_pose,
-            left_roll,
-            left_pitch,
-            self.lever_length
+            self.left_lever_base_pose, left_roll, left_pitch, self.lever_length
         )
 
         right_lever_tip = self.calculateLeverTipPose(
-            self.right_lever_base_pose,
-            right_roll,
-            right_pitch,
-            self.lever_length
+            self.right_lever_base_pose, right_roll, right_pitch, self.lever_length
         )
 
         self.left_wrist = left_lever_tip
@@ -152,15 +146,17 @@ class JoystickWrapper(Node):
             [
                 [1, 0, 0],
                 [0, np.cos(roll), -np.sin(roll)],
-                [0, np.sin(roll), np.cos(roll)]
-            ])
+                [0, np.sin(roll), np.cos(roll)],
+            ]
+        )
 
         pitch_mat = np.array(
             [
                 [np.cos(pitch), 0, np.sin(pitch)],
                 [0, 1, 0],
-                [-np.sin(pitch), 0, np.cos(pitch)]
-            ])
+                [-np.sin(pitch), 0, np.cos(pitch)],
+            ]
+        )
 
         rotation = np.dot(roll_mat, pitch_mat)
 
@@ -194,7 +190,7 @@ def main(args=None):
         "--joy_topic", type=str, default="/joy", help="Joy topic for commands"
     )
     parser.add_argument(
-        "--frequency", type=float, default=30.0, help='control loop frequency'
+        "--frequency", type=float, default=30.0, help="control loop frequency"
     )
     args = parser.parse_args()
     print(f"args:{args}")
@@ -222,21 +218,12 @@ def main(args=None):
 
                 rclpy.spin_once(joystick_wrapper, timeout_sec=0.001)
 
-
                 time_ik_start = time.time()
-                
-                # Ensure loop runs at least at 25Hz
-                elapsed_time = time.time() - start_time
-                min_period = 1.0 / 25.0
-                if elapsed_time < min_period:
-                    time.sleep(min_period - elapsed_time)
-
 
                 left_wrist, right_wrist = joystick_wrapper.getData()
 
                 left_xyz = left_wrist[:3, 3]
                 right_xyz = right_wrist[:3, 3]
-                
 
                 current_lr_arm_q = arm_ctrl.get_current_dual_arm_q()
                 current_lr_arm_dq = arm_ctrl.get_current_dual_arm_dq()
@@ -246,8 +233,6 @@ def main(args=None):
                     dq=current_lr_arm_dq,
                     target_pos=np.concatenate([left_xyz, right_xyz]),
                 )
-
-
 
                 sol_tauff = np.zeros_like(sol_q)
 
