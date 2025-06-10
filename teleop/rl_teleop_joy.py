@@ -231,12 +231,10 @@ def main(args=None):
                 right_rot = right_wrist[:3, :3]
                 right_quat = R.from_matrix(right_rot).as_quat(scalar_first=True)
 
-                current_lr_arm_q = arm_ctrl.get_current_dual_arm_q()
-                current_lr_arm_dq = arm_ctrl.get_current_dual_arm_dq()
+                # current_lr_arm_q = arm_ctrl.get_current_dual_arm_q()
+                # current_lr_arm_dq = arm_ctrl.get_current_dual_arm_dq()
 
                 sol_q = rl_inference.run(
-                    q=current_lr_arm_q,
-                    dq=current_lr_arm_dq,
                     target=np.concatenate([left_xyz, right_xyz, left_quat, right_quat]),
                 )
 
@@ -244,7 +242,7 @@ def main(args=None):
 
                 time_ik_end = time.time()
                 time_ik = time_ik_end - time_ik_start
-                print("Time required for IK: %f", time_ik)
+                print("Time required for RL Inference: %f", time_ik)
                 arm_ctrl.ctrl_dual_arm(sol_q, sol_tauff)
 
                 elapsed_time = time.time() - start_time
