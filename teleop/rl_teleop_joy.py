@@ -22,7 +22,7 @@ from teleop.robot_control.robot_arm import G1_29_ArmController
 from teleop.robot_control.robot_arm_ik import G1_29_ArmIK
 from scipy.spatial.transform import Rotation as R
 
-POLICY_PATH = os.path.join(parent_dir, "rl_assets/policy_only_target_wide_range.onnx")
+POLICY_PATH = os.path.join(parent_dir, "rl_assets/policy_with_orientation.onnx")
 JOINT_YAML_PATH = os.path.join(parent_dir, "rl_assets/joint_order.yml")
 SPACES = [
     "left_shoulder_pitch_joint",
