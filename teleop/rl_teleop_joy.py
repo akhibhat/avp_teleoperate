@@ -20,6 +20,7 @@ sys.path.append(parent_dir)
 
 from teleop.robot_control.robot_arm import G1_29_ArmController
 from teleop.robot_control.robot_arm_ik import G1_29_ArmIK
+from scipy.spatial.transform import Rotation as R
 
 POLICY_PATH = os.path.join(parent_dir, "rl_assets/policy_only_target_wide_range.onnx")
 JOINT_YAML_PATH = os.path.join(parent_dir, "rl_assets/joint_order.yml")
@@ -225,13 +226,18 @@ def main(args=None):
                 left_xyz = left_wrist[:3, 3]
                 right_xyz = right_wrist[:3, 3]
 
+                left_rot = left_wrist[:3, :3]
+                left_quat = R.from_matrix(left_rot).as_quat(scalar_first=True)
+                right_rot = right_wrist[:3, :3]
+                right_quat = R.from_matrix(right_rot).as_quat(scalar_first=True)
+
                 current_lr_arm_q = arm_ctrl.get_current_dual_arm_q()
                 current_lr_arm_dq = arm_ctrl.get_current_dual_arm_dq()
 
                 sol_q = rl_inference.run(
                     q=current_lr_arm_q,
                     dq=current_lr_arm_dq,
-                    target_pos=np.concatenate([left_xyz, right_xyz]),
+                    target=np.concatenate([left_xyz, right_xyz, left_quat, right_quat]),
                 )
 
                 sol_tauff = np.zeros_like(sol_q)
