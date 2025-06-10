@@ -19,15 +19,15 @@ class RLPolicyInference:
         self.parse_joints_yaml(joint_yaml_path)
         self.previous_actions = np.zeros(len(self.action_space), dtype=np.float32)
 
-    def run(self, q, dq, target_pos):
-        q_isaacsim = self.convert_to_isaacsim(q, self.obs_space)
-        dq_isaacsim = self.convert_to_isaacsim(dq, self.obs_space)
+    def run(self, target):
+        # q_isaacsim = self.convert_to_isaacsim(q, self.obs_space)
+        # dq_isaacsim = self.convert_to_isaacsim(dq, self.obs_space)
         # model_input = (
         #     np.concatenate([q_isaacsim, dq_isaacsim, self.previous_actions, target_pos])
         #     .reshape(1, -1)
         #     .astype(np.float32)
         # )
-        model_input = target_pos.reshape(1, -1).astype(np.float32)
+        model_input = target.reshape(1, -1).astype(np.float32)
         action = (
             self.onnx_policy.run(
                 [self.onnx_policy.get_outputs()[0].name],
@@ -101,6 +101,6 @@ if __name__ == "__main__":
         rl_inference.run(
             q=np.array([-0.2, 0.42, -0.23, 0.87, 0.16, 0.35, -0.16]),
             dq=np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]),
-            target_pos = np.array([0.2, 0.1, 0.2])
+            target_pos=np.array([0.2, 0.1, 0.2]),
         )
     )
