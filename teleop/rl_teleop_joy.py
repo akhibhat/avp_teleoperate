@@ -54,8 +54,8 @@ class JoystickWrapper(Node):
 
         self.left_lever_base_pose = np.eye(4)
         self.left_lever_base_pose[0, 3] = 0.2
-        self.left_lever_base_pose[1, 3] = 0.2
-        self.left_lever_base_pose[2, 3] = 0.0
+        self.left_lever_base_pose[1, 3] = 0.4
+        self.left_lever_base_pose[2, 3] = -0.05
 
         left_roll = 20.0 * np.pi / 180.0
         left_pitch = 10.0 * np.pi / 180.0
@@ -77,9 +77,9 @@ class JoystickWrapper(Node):
         self.left_lever_base_pose[0:3, 0:3] = np.dot(left_roll_mat, left_pitch_mat)
 
         self.right_lever_base_pose = np.eye(4)
-        self.right_lever_base_pose[0, 3] = 0.2
-        self.right_lever_base_pose[1, 3] = -0.2
-        self.right_lever_base_pose[2, 3] = 0.0
+        self.right_lever_base_pose[0, 3] = 0.16
+        self.right_lever_base_pose[1, 3] = -0.4
+        self.right_lever_base_pose[2, 3] = -0.05
 
         right_roll = -20.0 * np.pi / 180.0
         right_pitch = 10.0 * np.pi / 180.0
@@ -253,6 +253,8 @@ def main(args=None):
 
     except KeyboardInterrupt:
         print("KeyboardInterrupt, exiting program...")
+    except Exception as E:
+        print(E)
     finally:
         arm_ctrl.ctrl_dual_arm_go_home()
         print("Finally, exiting program")
