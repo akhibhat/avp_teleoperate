@@ -38,10 +38,10 @@ class KeyboardJoyNode(Node):
         
         self.get_logger().info('Keyboard Joy Node started')
         self.get_logger().info('Controls:')
-        self.get_logger().info('  w/s: Axis 0 (left wrist forward/backward)')
-        self.get_logger().info('  a/d: Axis 1 (left wrist left/right)')
-        self.get_logger().info('  i/k: Axis 3 (right wrist forward/backward)')
-        self.get_logger().info('  j/l: Axis 4 (right wrist left/right)')
+        self.get_logger().info('  w/s: Axis 1 (left wrist forward/backward)')
+        self.get_logger().info('  a/d: Axis 0 (left wrist left/right)')
+        self.get_logger().info('  i/k: Axis 4 (right wrist forward/backward)')
+        self.get_logger().info('  j/l: Axis 3 (right wrist left/right)')
         self.get_logger().info('  q: Quit')
         
     def keyboard_listener(self):
@@ -63,27 +63,27 @@ class KeyboardJoyNode(Node):
             
         # Axis 0: w/s keys
         elif key == 'w':
-            self.axes[0] = min(1.0, self.axes[0] + self.increment)
+            self.axes[1] = min(1.0, self.axes[1] + self.increment)
         elif key == 's':
-            self.axes[0] = max(-1.0, self.axes[0] - self.increment)
+            self.axes[1] = max(-1.0, self.axes[1] - self.increment)
             
         # Axis 2: a/d keys (note: this is index 2, not 1, since index 1 is fixed at 1.0)
         elif key == 'a':
-            self.axes[1] = min(1.0, self.axes[1] + self.increment)
+            self.axes[0] = max(-1.0, self.axes[0] - self.increment)
         elif key == 'd':
-            self.axes[1] = max(-1.0, self.axes[1] - self.increment)
+            self.axes[0] = min(1.0, self.axes[0] + self.increment)
             
         # Axis 3: i/k keys
         elif key == 'i':
-            self.axes[3] = min(1.0, self.axes[3] + self.increment)
+            self.axes[4] = min(1.0, self.axes[4] + self.increment)
         elif key == 'k':
-            self.axes[3] = max(-1.0, self.axes[3] - self.increment)
+            self.axes[4] = max(-1.0, self.axes[4] - self.increment)
         
         # Axis 4: j/l keys
         elif key == 'j':
-            self.axes[4] = min(1.0, self.axes[4] + self.increment)
+            self.axes[3] = max(-1.0, self.axes[3] - self.increment)
         elif key == 'l':
-            self.axes[4] = max(-1.0, self.axes[4] - self.increment)
+            self.axes[3] = min(1.0, self.axes[3] + self.increment)
     
     def publish_joy(self):
         """Publish Joy message"""
