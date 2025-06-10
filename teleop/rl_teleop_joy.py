@@ -227,9 +227,11 @@ def main(args=None):
                 right_xyz = right_wrist[:3, 3]
 
                 left_rot = left_wrist[:3, :3]
-                left_quat = R.from_matrix(left_rot).as_quat(scalar_first=True)
+                lq = R.from_matrix(left_rot).as_quat()
+                left_quat = np.array([lq[3], lq[0], lq[1], lq[2]])
                 right_rot = right_wrist[:3, :3]
-                right_quat = R.from_matrix(right_rot).as_quat(scalar_first=True)
+                rq = R.from_matrix(right_rot).as_quat()
+                right_quat = np.array([rq[3], rq[0], rq[1], rq[2]])
 
                 # current_lr_arm_q = arm_ctrl.get_current_dual_arm_q()
                 # current_lr_arm_dq = arm_ctrl.get_current_dual_arm_dq()
