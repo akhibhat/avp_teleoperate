@@ -22,11 +22,12 @@ class RLPolicyInference:
     def run(self, q, dq, target_pos):
         q_isaacsim = self.convert_to_isaacsim(q, self.obs_space)
         dq_isaacsim = self.convert_to_isaacsim(dq, self.obs_space)
-        model_input = (
-            np.concatenate([q_isaacsim, dq_isaacsim, self.previous_actions, target_pos])
-            .reshape(1, -1)
-            .astype(np.float32)
-        )
+        # model_input = (
+        #     np.concatenate([q_isaacsim, dq_isaacsim, self.previous_actions, target_pos])
+        #     .reshape(1, -1)
+        #     .astype(np.float32)
+        # )
+        model_input = target_pos.reshape(1, -1).astype(np.float32)
         action = (
             self.onnx_policy.run(
                 [self.onnx_policy.get_outputs()[0].name],
