@@ -21,7 +21,7 @@ sys.path.append(parent_dir)
 from teleop.robot_control.robot_arm import G1_29_ArmController
 from teleop.robot_control.robot_arm_ik import G1_29_ArmIK
 
-POLICY_PATH = os.path.join(parent_dir, "rl_assets/policy_vibrating.onnx")
+POLICY_PATH = os.path.join(parent_dir, "rl_assets/policy_only_target_wide_range.onnx")
 JOINT_YAML_PATH = os.path.join(parent_dir, "rl_assets/joint_order.yml")
 SPACES = [
     "left_shoulder_pitch_joint",
